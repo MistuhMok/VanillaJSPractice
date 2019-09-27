@@ -19,8 +19,22 @@
   </div>
 
   <img src="https://source.unsplash.com/7bwQXzbF6KE/800x500">
-
   <style>
+    :root {
+      --base: red;
+      --spacing: 10px;
+      --blur: 10px;
+    }
+
+    img {
+      padding: var(--spacing);
+      background: var(--base);
+      filter: blur(var(--blur));
+    }
+
+    .hl {
+      color: var(--base);
+    }
 
     /*
       misc styles, nothing to do with CSS variables
@@ -45,6 +59,19 @@
   </style>
 
   <script>
+    const inputs = document.querySelectorAll('.controls input')
+
+    function handleUpdate() {
+      //dataset is an html object that begins with data-* attribute
+      const suffix = this.dataset.sizing || ''
+
+      //select a css variable and append proper measurements
+      document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix)
+    }
+
+    inputs.forEach(input => input.addEventListener('change', handleUpdate))
+    inputs.forEach(input => input.addEventListener('mousemove', handleUpdate))
+
   </script>
 
 </body>
