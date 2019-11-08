@@ -23,12 +23,16 @@
       <input type="text" name="item" placeholder="Item Name" required>
       <input type="submit" value="+ Add Item">
     </form>
+    <button>Check All</button>
+
   </div>
 
 <script>
   const addItems = document.querySelector('.add-items');
   const itemsList = document.querySelector('.plates');
   const items = JSON.parse(localStorage.getItem('items')) || [];
+  const button = document.querySelector('button')
+  let checkedCounter = 0
 
   function addItem(e){
     e.preventDefault()
@@ -42,12 +46,12 @@
     populateList(items,itemsList)
     localStorage.setItem('items', JSON.stringify(items))
     this.reset()
-    console.log(items)
   }
 
   //Rerenders the entire list instead of just the changed element
   function populateList(plates = [], platesList) {
     platesList.innerHTML = plates.map((plate, index)=>{
+      if(plate.done) checkedCounter++
       return `
       <li>
         <input type="checkbox" data-index=${index} id="item${index}" ${plate.done ? 'checked' : ''}/>
@@ -61,14 +65,42 @@
     if(!e.target.matches('input')) return //skip unless it's an input
     const element = e.target
     const index = element.dataset.index
-    items[index].done = !items[index].done
+    const checked = !items[index].done
+    items[index].done = checked
+    if(checked) checkedCounter++
+    else checkedCounter--
+
     localStorage.setItem('items', JSON.stringify(items))
 
-    console.log(element.dataset.index)
+    if(checkedCounter > items.length) {
+      button.innerText = 'Uncheck All'
+    } else {
+      button.innerText = 'Check All'
+    }
+  }
+
+  //Check all/uncheck all button
+  //Button text changes when all are checked or not
+  function checkAll(e) {
+    const checked = checkedCounter < items.length
+    if(checked) {
+      button.innerText = 'Uncheck All'
+    } else {
+      checkedCounter = 0
+      button.innerText = 'Check All'
+    }
+
+    const updatedList = items.map(item => {
+      item.done = checked
+      return item
+    })
+    localStorage.setItem('items', JSON.stringify(updatedList))
+    populateList(items,itemsList)
   }
 
   addItems.addEventListener('submit', addItem)
   itemsList.addEventListener('click', toggleDone)
+  button.addEventListener('click', checkAll)
 
   populateList(items,itemsList)
 
